@@ -127,6 +127,7 @@ def clean(value):
 def title_only(value):
     # itch.io RSS titles often append [Free] [Simulation] [Windows].
     v = re.sub(r"(?:\s*\[[^\[\]]{1,45}\])+\s*$", "", clean(value))
+    v = re.sub(r'^"([^"]+)"\s+', r"\1 ", v)
     return v.strip(" \t\r\n\"'")[:255]
 
 
