@@ -1,6 +1,12 @@
 name: Gaming Aisles Scout
 on:
   workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Preview candidates without adding them to Airtable'
+        type: boolean
+        required: false
+        default: false
   schedule:
     - cron: "15 14 * * 1"
 permissions:
@@ -37,4 +43,5 @@ jobs:
           SCOUT_PAGE_FETCH: '30'
           SCOUT_AI_CALLS: '16'
           SCOUT_LIMIT: '10'
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
         run: python tools/scout/scout.py
