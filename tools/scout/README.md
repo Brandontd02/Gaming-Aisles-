@@ -18,7 +18,7 @@ Scouting is **research**, not publication. The job only adds leads to Airtable's
 
 Open: https://github.com/Brandontd02/Gaming-Aisles-/actions/workflows/gaming-aisles-scout.yml
 
-Press **Run workflow**. The scheduled run is Monday 14:15 UTC. Read the **Find and queue candidates** log. The previous run's green check alone is not evidence of new recommendations; the job explicitly prints counts.
+Press **Run workflow**. Select **dry_run** to preview recommendations without writing them to Airtable; deselect it for the live import. The scheduled run is Monday 14:15 UTC. Read the **Find and queue candidates** log. The previous run's green check alone is not evidence of new recommendations; the job explicitly prints counts.
 
 **Required GitHub Actions repository secret:** `AIRTABLE_TOKEN`, an Airtable personal access token with `data.records:read` and `data.records:write` scoped to your Gaming Aisles base.
 
