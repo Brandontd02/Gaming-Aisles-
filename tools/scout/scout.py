@@ -179,7 +179,7 @@ class PageDescription(HTMLParser):
             key = (attrs.get("property") or attrs.get("name") or "").lower()
             if key in ("og:description", "description") and not self.meta:
                 self.meta = attrs.get("content", "")
-        if self.depth:
+        if self.depth and tag not in ("br", "img", "hr", "input", "meta", "link", "source", "wbr"):
             self.depth += 1
         elif tag == "div" and "formatted_description" in attrs.get("class", "").split():
             self.depth = 1
@@ -285,6 +285,16 @@ Deep Cut Discovery requires historical obscurity AND evidence of preservation
 or influence, never infer that from style alone. Store Legend is never an
 automatic suggestion. Clerk's Spotlight requires gameplay making story meaning.
 When evidence is insufficient choose Unclear.
+
+REFERENCE TASTE, NOT BLIND LOOKALIKES:
+Spotlight: Suzerain, Vampire: The Masquerade – Bloodlines, Deadly Premonition,
+Yu-Gi-Oh! Duelists of the Roses, Kenshi, Infinite Space.
+Flow State: Crypt of the NecroDancer, Thumper, Metal: Hellsinger,
+Mullet Madjack, Everhood.
+Deep Cut preservation examples: Shadow of Memories, OFF, Deathrow,
+The Black Heart, Contradiction: Spot the Liar!, Chzo Mythos.
+Return Bin proof of concept: Bernband; strange, free and worth investigating.
+Do not select clones or claim a game matches simply because its genre overlaps.
 
 Decision 'shortlist' only for a specific, unusual, concrete hook supported
 by supplied content. 'hold' for potentially interesting but insufficient data;
