@@ -1,0 +1,35 @@
+name: Gaming Aisles Scout
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 14 * * 1"
+permissions:
+  contents: read
+jobs:
+  scout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check Airtable credentials
+        env:
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+        run: |
+          if [ -z "$AIRTABLE_TOKEN" ]; then
+            echo "::notice::AIRTABLE_TOKEN is not configured. Skipping scouting until set."
+            echo "SCOUT_READY=false" >> "$GITHUB_ENV"
+          else
+            echo "SCOUT_READY=true" >> "$GITHUB_ENV"
+          fi
+      - uses: actions/setup-python@v5
+        if: env.SCOUT_READY == 'true'
+        with:
+          python-version: '3.12'
+      - name: Discover and queue new games
+        if: env.SCOUT_READY == 'true'
+        env:
+          AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          AIRTABLE_BASE_ID: app8RCmRrP4YcQ043
+          AIRTABLE_SCOUT_TABLE_ID: tbl170LhV6VciWryj
+          SCOUT_LIMIT: '12'
+        run: python tools/scout/scout.py
