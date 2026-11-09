@@ -5,31 +5,36 @@ on:
     - cron: "15 14 * * 1"
 permissions:
   contents: read
+concurrency:
+  group: gaming-aisles-scout
+  cancel-in-progress: false
 jobs:
   scout:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - name: Check Airtable credentials
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test scout rules offline
+        run: python -m unittest discover -s tools/scout -p 'test_*.py' -v
+      - name: Require Airtable connection
         env:
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
         run: |
           if [ -z "$AIRTABLE_TOKEN" ]; then
-            echo "::notice::AIRTABLE_TOKEN is not configured. Skipping scouting until set."
-            echo "SCOUT_READY=false" >> "$GITHUB_ENV"
-          else
-            echo "SCOUT_READY=true" >> "$GITHUB_ENV"
+            echo "::error::Add AIRTABLE_TOKEN under Settings → Secrets and variables → Actions"
+            exit 1
           fi
-      - uses: actions/setup-python@v5
-        if: env.SCOUT_READY == 'true'
-        with:
-          python-version: '3.12'
-      - name: Discover and queue new games
-        if: env.SCOUT_READY == 'true'
+      - name: Find and queue candidates
         env:
           AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           AIRTABLE_BASE_ID: app8RCmRrP4YcQ043
           AIRTABLE_SCOUT_TABLE_ID: tbl170LhV6VciWryj
-          SCOUT_LIMIT: '12'
+          SCOUT_AI_MODEL: gpt-4.1-mini
+          SCOUT_PAGE_FETCH: '30'
+          SCOUT_AI_CALLS: '16'
+          SCOUT_LIMIT: '10'
         run: python tools/scout/scout.py
