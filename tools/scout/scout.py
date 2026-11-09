@@ -109,7 +109,9 @@ def http(url, *, method="GET", data=None, headers=None, timeout=22):
 def airtable(table, field):
     results, offset = [], None
     while True:
-        query = {"pageSize": 100, "fields[]": field}
+        # Airtable keys records by field NAME unless asked otherwise; we look values
+        # up by field ID, so without this flag every value was None and dedup saw nothing.
+        query = {"pageSize": 100, "fields[]": field, "returnFieldsByFieldId": "true"}
         if offset:
             query["offset"] = offset
         url = f"https://api.airtable.com/v0/{BASE}/{table}?" + urlencode(query)
@@ -147,6 +149,7 @@ def itch_game_url(url):
 
 def existing():
     urls = {canonical(x) for x in airtable(INBOX, F["url"])}
+    urls.update(x.lower() for x in airtable(INBOX, F["key"]))
     titles = {name_key(x) for x in airtable(INBOX, F["title"])}
     titles.update(name_key(x) for x in airtable("tblp97q5q1SPohHIb", "fldmWMaEdvArm4D14"))
     titles.update(name_key(x) for x in airtable("tblO5nClruDII8WrB", "fldNwPr4xgz1QMSsL"))

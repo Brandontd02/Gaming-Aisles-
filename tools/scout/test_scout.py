@@ -1,5 +1,9 @@
 """Offline regression tests for Scout v2. No tokens, network or Airtable writes."""
+import json
 import unittest
+from unittest import mock
+
+import scout
 
 from scout import (PageDescription, canonical, feed_games, itch_game_url,
                    name_key, rule_rank, title_only)
@@ -58,6 +62,18 @@ class ScoutTests(unittest.TestCase):
         parser.feed('<meta name="description" content="fallback"><div class="formatted_description"><p>Uncanny</p><p>world</p></div><script>evil()</script>')
         self.assertIn("Uncanny", parser.excerpt())
         self.assertNotIn("evil", parser.excerpt())
+
+
+    def test_airtable_reads_values_keyed_by_field_id(self):
+        # Regression: without returnFieldsByFieldId, existing rows were invisible and every run re-added them.
+        seen = {}
+        def fake_http(url, **kw):
+            seen["url"] = url
+            return json.dumps({"records": [{"fields": {"fld7q8hvsTIywXx9l": "https://debuz.itch.io/kritsana"}}]}).encode()
+        with mock.patch.object(scout, "http", fake_http), mock.patch.object(scout, "TOKEN", "x"):
+            values = scout.airtable("tbl170LhV6VciWryj", "fld7q8hvsTIywXx9l")
+        self.assertIn("returnFieldsByFieldId=true", seen["url"])
+        self.assertEqual(values, ["https://debuz.itch.io/kritsana"])
 
 
 if __name__ == "__main__":
